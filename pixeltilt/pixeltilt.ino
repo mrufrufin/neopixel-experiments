@@ -5,6 +5,7 @@
 
 #define PIN 2
 #define NUMPIXELS 60
+#define DEBUG 0
 
 float curIntensity[NUMPIXELS] = {};
 
@@ -22,16 +23,17 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ80
 
 void setup()
 {
-   Serial.begin(9600);
+   Serial.begin(28800);
   pixels.begin();
   pixels.show();
   
   for(int i = 0; i < NUMPIXELS; i++)
       curIntensity[i] = 0.0;
 
+  /*
   for(int i = 0; i <3; i++)
       curColor[i] = (int)random(150,255);
-
+  */
   int roundloc = roundToInt(curLoc);
    curIntensity[roundloc] = 1.0;
 }
@@ -40,8 +42,8 @@ void loop()
 {
   int showpix = 0; //flag to update state
 
-  //updatePosition();
-  movePosition();
+  if(DEBUG < 1) updatePosition();
+  else movePosition();
   showpix = updateIntensities();
   if(showpix > 0)
     {
@@ -50,24 +52,24 @@ void loop()
     };
 
 }
-/*
+
 void serialEvent()
 {
-  while(Serial.available())
+  while(Serial.available() && (DEBUG < 1))
     {
       int inbyte = Serial.read();
       //Serial.println(inbyte);
       curVel = byteToVel(inbyte);
     };
 }
-*/
+
 //want to map byte 0-255 to -0.5 to 0.5 velocity
 float byteToVel(int vel)
 {
   float in_lo = 0.0;
   float in_hi = 255.0;
-  float out_lo = -0.05;
-  float out_hi = 0.05;
+  float out_lo = -0.5;
+  float out_hi = 0.5;
   float invel = vel > in_hi ? in_hi : (vel < in_lo ? in_lo : (float)vel);
 
   float returnVal = ((invel - in_lo) * (out_hi - out_lo)/(in_hi-in_lo)) + out_lo;
@@ -94,7 +96,9 @@ int roundToInt(float ipt)
 
 void updatePosition()
 {
-  curLoc = curLoc + curVel;
+  
+  float loc = curLoc + curVel;
+  curLoc = loc < 0 ? 0 : (loc >= NUMPIXELS ? NUMPIXELS - 1.0 : loc);
 }
 
 //return 0 if no update needed, else return 1
@@ -124,6 +128,7 @@ void updateColors(void)
     {
       
       int cur[3] = {0,0,0};
+
       
       float intensityMult = curIntensity[i];
       
@@ -132,7 +137,7 @@ void updateColors(void)
           cur[j] = (int)(curColor[j]*intensityMult);
         };
   
-
+      
   
       //int curGamma = intensityToGamma(curIntensity[i]);
       /*
@@ -144,6 +149,7 @@ void updateColors(void)
       };
       */
       pixels.setPixelColor(i, pixels.Color(cur[0],cur[1],cur[2]));
+      //pixels.setPixelColor(i, pixels.Color(curGamma, curGamma, curGamma));
     };
 }
 
@@ -164,5 +170,3 @@ void movePosition()
 
   curLoc = loc;
 }
-
-

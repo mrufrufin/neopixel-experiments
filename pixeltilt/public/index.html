@@ -1,0 +1,35 @@
+<html>
+    <head>
+	<style>
+	 #tiltslider
+	 {
+	     width:100%;
+
+	 }
+
+	 #display
+	 {
+	     font-size:30px;
+	     text-align:center;
+	     width:100%;
+	 }
+	 #slidebox
+	 {
+	     width:100%;
+	     top:50%;
+	     position:absolute;
+	 }
+	    </style>
+	</head>
+	<body>
+	    <div id="slidebox" width="100%">
+		<div id="display">0.0</div>
+
+		<input type="range" min="-50" max="50" value="0" id="tiltslider" />
+	    </div>
+	    <script src="/socket.io/socket.io.js" type="text/javascript"></script>
+	    <script src="js/script.js" type="text/javascript"></script>
+	</body>
+</html>
+
+
